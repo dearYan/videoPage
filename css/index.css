@@ -14,6 +14,32 @@
 	margin-left: -23px;
 	position: absolute;
 }
+.video_desc_container{
+	position: absolute;
+    z-index: 99999999;
+    bottom: 0;
+    left: 0;
+    height: 50px;
+    line-height: 50px;
+    width: 100%;
+    padding-left: 10px;
+    color: #fff;
+	font-size: 24px;
+	font-weight: bold;
+	text-shadow: 2px 2px 5px rgba(204,204,204,0.9);
+}
+.video_desc_container .video_desc_left{
+	display: block;
+	width: 200px;
+	float: left;
+}
+.video_desc_container .video_desc_right{
+	width: 500px;
+	float: right;
+	text-align: right;
+	padding-right: 10px;
+}
+
 .loading_out_cicrle{
 	width: 40px;
 	height: 40px;

@@ -13,6 +13,7 @@ html,body{
 	overflow: hidden;
 }
 body{
-	background: url('../img/background.png') no-repeat;
+	background: #000;
 	background-size: 100% 100%;
+	font-family: "微软雅黑";
 }
