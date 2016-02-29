@@ -30,11 +30,11 @@
 }
 .video_desc_container .video_desc_left{
 	display: block;
-	width: 200px;
+	width: 500px;
 	float: left;
 }
 .video_desc_container .video_desc_right{
-	width: 500px;
+	width: 200px;
 	float: right;
 	text-align: right;
 	padding-right: 10px;
