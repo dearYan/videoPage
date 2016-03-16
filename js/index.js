@@ -4,6 +4,7 @@
      showData = [],
      totalLen = 0,
      currentIndex = 0,
+     deleteDomIndex = 0,
      option = {
      	right : 14,
      	bottom : [{
@@ -107,50 +108,11 @@
 	    }
 	 ],
 	 floatSmall = [],
-     // testData = [
-	    //  {
-	    //  	cid : "10000400"
-	    //  },
-	    //  {
-	    //  	cid : "10000251"
-	    //  },
-	    //  {
-	    //  	cid : "10000260"
-	    //  },
-	    //  {
-	    //  	cid : "10000151"
-	    //  },
-	    //  {
-	    //  	cid : "10000160"
-	    //  },
-	    //  {
-	    //  	cid : "537002072"
-	    //  },
-	    //  {
-	    //  	cid : "1003581"
-	    //  },
-	    //  {
-	    //  	cid : "1003664"
-	    //  },
-	    //  {
-	    //  	cid : "1003731"
-	    //  },
-	    //  {
-	    //  	cid : "1003723"
-	    //  },
-	    //  {
-	    //  	cid : "234566"
-	    //  },
-	    //  {
-	    //  	cid : "456678"
-	    //  }
-     // ],
-     clearInt;
+     clearInt,
+     clearUpdate;
 
 $(function(){
-    var timer;
-
-                                    
+                             
     var loading = '<div class="loading_container">'+
         '<div class="loading_out_cicrle"><div class="loading_turn_cicrle"></div>'+
         '<div class="loading_inner_cicrle"></div></div></div>';
@@ -185,7 +147,8 @@ $(function(){
         player.setup({
             file: 'rtmp://'+ip2+'/live/'+cid,
             rtmp: {
-                bufferlength: 2.0
+                bufferlength: 2.0,
+                stagevideo:true 
             },
             width:'100%',
             height:'100%',
@@ -216,13 +179,19 @@ $(function(){
 
     common.initData(function(data){
     	var tempCid = data[data.length-1]["cid"],
-    	    tempName = data[data.length-1]["app_name"];
+    	    tempName = data[data.length-1]["app_name"]+"-"+data[data.length-1]["location"];
 
-	    showData = data; 
+	     showData = data; 
+     //    var tempArr = [];
+	    // for(var i=0;i<65;i++){
+	    // 	tempArr.push(data[i]);
+	    // }
+	    // showData = tempArr;
+
 	    $(".video_desc_container .video_current_name").html(tempName);
 	    rtmpPlayer.playCamera(tempCid,tempCid);
 
-		initImage(data);
+		initImage(showData);
 
 		if( showData.length>totalLen+14 ){
 			currentIndex = totalLen + 14;
@@ -257,6 +226,7 @@ $(function(){
     	    classIndex = 0,
     	    smallDataLen = data.length - 14,
     	    smallArray = option["bottom"],
+    	    totalIndex = 0,
     	    smallLen = smallArray.length,
     	    initPosition = smallArray[1]["num"]
     	    startPosition = smallArray[0]["num"],
@@ -299,25 +269,31 @@ $(function(){
         for(var i=0;i<smallLen;i++){
         	if(i === 0){
         		for(var k=0;k<smallArray[i]["num"];k++){
+        			totalIndex ++;
         			classIndex ++;
-        			if(classIndex < smallDataLen){
+        			if(totalIndex < smallDataLen){
         				smallHtl = smallHtl + '<div class="footer_container_img footer_container_img_'+classIndex+'" data-position="'+k+'"><img/></div>'
         			}
         		}
+        		initPosition = initPosition - smallArray[1]["num"];
         	}else {
-        		initPosition = initPosition - smallArray[i]["num"]
+        	   
         		if(i%2 === 0){
+        			classIndex = classIndex + smallArray[i]["num"];
         			for(var k=0;k<smallArray[i]["num"];k++){
-	        			classIndex ++;
-	        			if(classIndex < smallDataLen){
-	        				smallHtl = smallHtl + '<div class="footer_container_img footer_container_img_'+classIndex+' scale_min" data-position="'+initPosition+'"><img/></div>'
-	        			    initPosition ++;
+                        totalIndex ++;
+	        			if(totalIndex < smallDataLen){
+	        				initPosition --;
+	        				smallHtl = smallHtl + '<div class="footer_container_img footer_container_img_'+classIndex+' scale_min" data-position="'+initPosition+'"><img/></div>';
+	        				classIndex --;
 	        			}
 	        		}
         		}else{
+        			classIndex = totalIndex;
         			for(var k=0;k<smallArray[i]["num"];k++){
-	        			classIndex ++;
-	        			if(classIndex < smallDataLen){
+	        			classIndex ++ ;
+	        			totalIndex ++;
+	        			if(totalIndex < smallDataLen){
 	        				initPosition --;
 	        			    smallHtl = smallHtl + '<div class="footer_container_img footer_container_img_'+classIndex+' scale_min" data-position="'+initPosition+'"><img/></div>'
 	        			}
@@ -341,7 +317,6 @@ $(function(){
 
         var smalImage = $(".footer_contianer .footer_container_img");
 
-
     	for(var i=0,len=data.length;i<len;i++){
     		var temp = parseInt(data[i]["cid"]),
     		    k = +temp % 10,
@@ -351,13 +326,13 @@ $(function(){
     	
     	for(var i=0,len=bigImage.length;i<len;i++){
     		var tempDom = bigImage.eq(i).find("img");
-    		tempDom.attr({"data-url":data[index]["cid"],"data-name":data[index]["app_name"],"src":imgUrl[index]});
+    		tempDom.attr({"data-url":data[index]["cid"],"data-name":data[index]["app_name"],"src":imgUrl[index],"data-location":data[index]["location"]});
     		index ++;
     	}
 
     	for(var i=0,len=smalImage.length;i<len;i++){
     		var tempDom = smalImage.eq(i).find("img");
-    		tempDom.attr({"data-url":data[index]["cid"],"data-name":data[index]["app_name"],"src":imgUrl[index]});
+    		tempDom.attr({"data-url":data[index]["cid"],"data-name":data[index]["app_name"],"src":imgUrl[index],"data-location":data[index]["location"]});
     		index++;
     	}
     }
@@ -513,23 +488,36 @@ window.onload = function(){
     }
     
     function insertSmallImage(){  
-       
+        smallImg = $(".footer_contianer .footer_container_img");
     	currentIndex ++;  
-
+        
         if(currentIndex>showData.length-1){
         	currentIndex = 0;
         }
-        
-        var lastImage = $(".footer_contianer .footer_container_img:last"),
+
+         
+         var lastImage = $(".footer_contianer .footer_container_img:last"),
             len = $(".footer_contianer .footer_container_img").length,
     	    dataPosition = parseInt(lastImage.attr("data-position")),
     	    temp = showData[currentIndex]["cid"],
+    	    classIndex = len,
     	    k = temp % 10,
     	    imgUrl = 'http://rtmp'+k+'.public.topvdn.cn/snapshot/'+temp+'.jpg';
-    	    smallImage = '<div class="footer_container_img footer_container_img_'+(len+1)+' scale_min" data-position="'+(dataPosition-1)+
-    	         '"><img src="'+imgUrl+'" data-url="'+temp+'" data-name="'+showData[currentIndex]["app_name"]+'"/></div>';
 
-    	smallImageContainer.append(smallImage);
+    	if(len>28 && len< 48){
+    		classIndex = 49 - (len - 29)-1;
+    	}else{
+    		classIndex ++ ;
+    	}
+
+        if(len<68){
+            var smallImage = '<div class="footer_container_img footer_container_img_'+classIndex+' scale_min" data-position="'+(dataPosition-1)+
+                    '"><img src="'+imgUrl+'" data-url="'+temp+'" data-name="'+showData[currentIndex]["app_name"]+'" data-location="'+showData[currentIndex]["location"]+'"/></div>';
+
+                smallImageContainer.append(smallImage);
+        }
+        
+    	
 
     	smallImg = $(".footer_contianer .footer_container_img");
     }
@@ -549,6 +537,7 @@ window.onload = function(){
 		    imgUrl = currentDem.attr("src"),
 		    opacity = currentDem.css("opacity"),
 		    dataUrl = currentDem.attr("data-url"),
+		    dataLocation = currentDem.attr("data-location"),
 		    dataName = currentDem.attr("data-name"),
 		    bigHtl ='',
 		    dataPosition =8;
@@ -560,7 +549,7 @@ window.onload = function(){
 		if(imgUrl==="" || imgUrl ===undefined){
 			bigHtl = '<div class="img_container img_container_14 error_image" data-position="'+dataPosition+'"></div>'
 		}else{
-			bigHtl = '<div class="img_container img_container_14" data-position="'+dataPosition+'"><img src="'+imgUrl+'" data-url="'+dataUrl+'" data-name="'+dataName+'" style="opacity:'+opacity+';"/></div>'
+			bigHtl = '<div class="img_container img_container_14" data-position="'+dataPosition+'"><img src="'+imgUrl+'" data-url="'+dataUrl+'" data-location="'+dataLocation+'" data-name="'+dataName+'" style="opacity:'+opacity+';"/></div>'
 		}
 
 		$(".img_screen .img_screen_contianer").append(bigHtl);
@@ -591,7 +580,7 @@ window.onload = function(){
     }
 
 	function initAnmation(){
-
+        clearInterval(clearUpdate);
 		bigImg = $(".img_screen .img_container");
 		smallImg = $(".footer_contianer .footer_container_img");
         isAnmationing = true,
@@ -635,7 +624,8 @@ window.onload = function(){
 	       		if(isAutoPlay){
 	    		 	var willPlayDom = $(this).find("img"),
 	        	    willPlayImageUrl = willPlayDom.attr("src"),
-	        	    willPlayName = willPlayDom.attr("data-name"),
+	        	    willPlayImageLocation = willPlayDom.attr("data-location"),
+	        	    willPlayName = willPlayDom.attr("data-name")+"-"+willPlayImageLocation,
 				    willPlayIp = willPlayDom.attr("data-url");
 
 					intoFlashPlay(willPlayImageUrl,willPlayIp,willPlayName);
@@ -658,11 +648,18 @@ window.onload = function(){
 	    	$(this).parent().addClass("error_image");
 	    	$(this).remove();
 	    });
+
+	    clearUpdate = setInterval(function(){
+	    	common.initData(function(data){
+	    	    deleteDomIndex = 0;
+	    		updateData(data);
+	    	});
+	    },10000);
 	}
 
 	$(".img_screen").on("click",".img_container",function(){
 		clearInterval(clearInt);
-
+        clearInterval(clearUpdate);
 		videAnmation.html("");
 		videAnmation.removeAttr("id");
 
@@ -670,7 +667,8 @@ window.onload = function(){
     	    opacity = dom.css("opacity"),
     	    position = parseInt($(this).attr("data-position"))+1,
     	    num = 7 - position,
-    	    dataName = dom.attr("data-name"),
+    	    location = dom.attr("data-location"),
+    	    dataName = dom.attr("data-name")+'-'+location,
     	    ip = dom.attr("data-url"),
     	    src = dom.attr("src");
 
@@ -724,6 +722,7 @@ window.onload = function(){
 
     $(".img_screen").on("mouseover",".img_container",function(){
 		clearInterval(clearInt);
+		clearInterval(clearUpdate);
     });
 
     $(".img_screen").on("mouseout",".img_container",function(){
@@ -732,10 +731,18 @@ window.onload = function(){
     		isAutoPlaySmall = true;
 			initAnmation();
 		}, 30000);
+		clearUpdate = setInterval(function(){
+	    	common.initData(function(data){
+	    	    deleteDomIndex = 0;
+	    		updateData(data);
+	    	});
+	    },10000);
     });
 
     $(".footer_contianer").on("mouseover",".footer_container_img",function(){
     	clearInterval(clearInt);
+    	clearInterval(clearUpdate);
+    	
     });
 
     $(".footer_contianer").on("mouseout",".footer_container_img",function(){
@@ -744,18 +751,26 @@ window.onload = function(){
     		isAutoPlaySmall = true;
 			initAnmation();
 		} , 30000);
+		clearUpdate = setInterval(function(){
+	    	common.initData(function(data){
+	    	    deleteDomIndex = 0;
+	    		updateData(data);
+	    	});
+	    },10000);
     });
 
     $(".footer_contianer").on("click",".footer_container_img",function(){
 
     	clearInterval(clearInt);
+        clearInterval(clearUpdate);
     	videAnmation.html("");
 		videAnmation.removeAttr("id");
         
     	var dom = $(this).find("img"),
     	    minPosition = parseInt($(".footer_contianer .footer_container_img:last").attr("data-position"))-2,
     	    opacity = dom.css("opacity"),
-    	    dataName = dom.attr("data-name"),
+    	    location = dom.attr("data-location"),
+    	    dataName = dom.attr("data-name")+'-'+location,
     	    ip = dom.attr("data-url"),
     	    position = parseInt($(this).attr("data-position"))-1,
     	    src = dom.attr("src");
@@ -832,18 +847,134 @@ window.onload = function(){
     	
     	initAnmation();
     });
+    
 
-    function findDeleteDom(ip){
+    function deleteBigImage(currentDom){
+
+    	var position = parseInt(currentDom.attr("data-position"))+1;
+    	currentDom.remove();
+        isAutoPlay = false;
+        isAutoPlaySmall = true;
+
+    	for(position;position<8;position++){
+    		for(var i=0,len=floatDir.length;i<len;i++){
+	    		if(floatDir[i]["position"] === position){
+	    			var className = floatDir[i]["className"],
+	    			    currentDom = bigImg.parent().find("[data-position='"+position+"']"),
+	    			    top = parseInt(currentDom.css("top")),
+		                left = parseInt(currentDom.css("left")),
+		                topValue = 0,
+		                leftValue = 0,
+	    			    dir = floatDir[i]["dir"];
+
+	    			if(dir === "up"){
+						topValue = top-118;
+						currentDom.css("top",topValue+"px");
+					}
+
+					if(dir === "left"){
+						leftValue = left - 209;
+						currentDom.css("left",leftValue+"px");
+					}
+
+					if(dir === "down"){
+						topValue = top+118;
+						currentDom.css("top",topValue+"px");
+					}
+					currentDom.addClass(className);
+					currentDom.attr("data-position",position-1);
+	    		}
+	        }
+    	}
+    	initAnmation();
+    }
+
+    function deleteSmallImage(currentDom){
+
+    	var position = parseInt(currentDom.attr("data-position"))-1,
+    	    minPosition = parseInt($(".footer_contianer .footer_container_img:last").attr("data-position"))-2;
+        
+        insertSmallImage();
+        currentDom.remove();
+        isAutoPlay = false;
+        isAutoPlaySmall = false;
+
+        for(position;position>minPosition;position--){
+    		for(var i=0,len=floatSmall.length;i<len;i++){
+	    		if(floatSmall[i]["position"] === position){
+	    			var className = floatSmall[i]["className"],
+	    			    currentDom = smallImg.parent().find("[data-position='"+position+"']"),
+	    			    top = parseInt(currentDom.css("top")),
+		                left = parseInt(currentDom.css("left")),
+		                width = parseInt(currentDom.css("width")),
+		                offset_left = 0,
+		                offset_top = 0,
+	    			    dir = floatSmall[i]["dir"];
+
+		    		if(position > -2){
+		    			offset_left = width+10;
+		    			offset_top = 75;
+		    		}else {
+		    			offset_left = 100;
+		    			offset_top = 50;
+		    		}
+		   
+	        		if(dir === "up"){
+						topValue = top - offset_top;
+						currentDom.css("top",topValue+"px");
+						if(left<0){
+							currentDom.css("left","-45px");
+						}
+					} 
+					if(dir === "left"){
+						leftValue = left - offset_left;
+						currentDom.css("left",leftValue+"px");
+					}
+		        
+			        if(dir === "up_bigImage"){
+			        	topValue = top - 137;
+						currentDom.css("top",topValue+"px");
+						currentDom.css("left","1700px");
+			        }
+
+			        if(dir === "right"){
+			        	leftValue = left + offset_left;
+			        	currentDom.css("left",leftValue +"px");
+			        }
+                
+	                if(position === -1){
+	                	currentDom.css("left","0px");
+	                }
+
+					currentDom.addClass(className);
+					currentDom.attr("data-position",position+1);
+	    		}
+	        }
+    	}
+
+        initAnmation();
+    }
+
+    function deleteDom(currentDom,curIndex,callback){
+    	setTimeout(function(){
+    		callback(currentDom);
+    	},curIndex*900)
+    }
+
+    function findDom(ip){
     	bigImg = $(".img_screen .img_container");
 		smallImg = $(".footer_contianer .footer_container_img");
 
 		var isShowsmall = true;
 		for(var i=0,len = bigImg.length;i<len;i++){
-			var current = bigImg.eq(i).find("img"),
-			    dataUrl = current.attr("data-url");
-			if( dataUrl === ip){
+			var currentDom = bigImg.eq(i).find("img"),
+			    dataUrl = currentDom.attr("data-url");
+			if(dataUrl === ip){
 				isShowsmall = false;
-				current.css("opacity","0.5");
+				deleteDomIndex ++;
+				deleteDom(bigImg.eq(i),deleteDomIndex,function(currentDom){
+					deleteBigImage(currentDom);
+				})
 			}
 		}
 
@@ -853,16 +984,76 @@ window.onload = function(){
 				    url = small.attr("data-url");
 
 				if(url === ip){
-					small.css("opacity","0.5");
+					deleteDomIndex ++;
+					deleteDom(smallImg.eq(i),deleteDomIndex,function(currentDom){
+						deleteSmallImage(currentDom);
+					})
 				}
 			}
 		}
+    }
+
+    function insertUpdateData(data){
+    	smallImg = $(".footer_contianer .footer_container_img");
+    	var len = smallImg.length,
+    	    classIndex = len,
+    	    lastSmallDom = $(".footer_contianer .footer_container_img:last"),
+    	    last_position = parseInt(lastSmallDom.attr("data-position"))-1;
+    	if(len<67){
+
+    		if(len>28 && len< 48){
+	    		classIndex = 49 - (len - 29)-1;
+	    	}else{
+	    		classIndex ++ ;
+	    	}
+    		var len = smallImg.length,
+    		    tempObj = floatSmall[len],
+    		    temp = data["cid"],
+    	        k = temp % 10,
+    	        imgUrl = 'http://rtmp'+k+'.public.topvdn.cn/snapshot/'+temp+'.jpg',
+    	        htl = '<div class="footer_container_img footer_container_img_'+classIndex+' scale_min" data-position="'+last_position+
+    	         '"><img src="'+imgUrl+'" data-url="'+temp+'" data-name="'+tempObj["app_name"]+'" data-location="'+tempObj["location"]+'"/></div>';
+    		$(".footer_contianer").append(htl);
+    	}
+    	smallImg = $(".footer_contianer .footer_container_img");
+    }
+
+    function travelDeleteDome(arr){
+        if(arr.length){
+            clearInterval(clearInt);
+            for(var k=0,len = arr.length;k<len;k++){
+                findDom(arr[k]);
+            }
+            clearInt = setInterval(function(){
+                isAutoPlay = true;
+                isAutoPlaySmall = true;
+                initAnmation();
+            }, 1000*30);
+        }
+    }
+
+    function travaleAddDome(addArray){
+        if(addArray.length){
+            clearInterval(clearInt);
+            setTimeout(function(){
+                for(var k=0,len=addArray.length;k<len;k++){
+                    insertUpdateData(addArray[k]);
+                }
+            },900*deleteDomIndex);
+            clearInt = setInterval(function(){
+                isAutoPlay = true;
+                isAutoPlaySmall = true;
+                initAnmation();
+            }, 1000*30);
+        }
     }
 
     function updateData(data){
     	var tempData = [],
     	    isAdd = true,
     	    len = data.length,
+            deleteArray = [],
+            addArray = [],
     	    isDelete = false,
     	    showLen = showData.length;
         
@@ -879,7 +1070,8 @@ window.onload = function(){
     			if(currentIndex>i){
     				currentIndex --;
     			}
-    			findDeleteDom(cid);
+                deleteArray.push(cid);
+    			//findDom(cid);
     		}
     	}
     
@@ -893,22 +1085,39 @@ window.onload = function(){
     		}
     		if(!isHas){
     			tempData.push(data[i]);
+                addArray.push(data[i]);
     		}
     	}
+
     	showData = tempData;
+        travelDeleteDome(deleteArray);
+        travaleAddDome(addArray);
     }
 
     // setTimeout(function(){
     // 	initAnmation();
-    // },3000)
+    // },15000)
     // initAnmation();
 
 	clearInt = setInterval(function(){
 		initAnmation();
-	}, 30000);
+	}, 1000*30);
+
+	// setTimeout(function(data){
+	// 	var tempData = showData.slice(50) 
+	//     var temp = [],
+	//         len = showData.length-1;
+	// 	for(var i=0;i<50;i++){
+	// 		temp.push(showData[len-i]);
+	// 	}
+	// 	common.initData(function(data){
+	// 	    updateData(data);
+ //    	});
+	// },10000);
     
-    setInterval(function(){
+    clearUpdate = setInterval(function(){
     	common.initData(function(data){
+    	    deleteDomIndex = 0;
     		updateData(data);
     	});
     },10000);
