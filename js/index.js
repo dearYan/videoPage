@@ -143,12 +143,13 @@ $(function(){
         var k = +cid % 10;
         var ip2 = cid==ip?'rtmp'+k.toString()+'.public.topvdn.cn':ip;
         var player = rtmpPlayer.player;
+        console.log("=============================== stop before");
         player.stop();
+        console.log("============================== stop after:")
         player.setup({
             file: 'rtmp://'+ip2+'/live/'+cid,
             rtmp: {
-                bufferlength: 2.0,
-                stagevideo:true 
+                bufferlength: 2.0
             },
             width:'100%',
             height:'100%',
@@ -158,6 +159,7 @@ $(function(){
     	            $(".videoContaner .into_play_area").removeAttr("id");
             	 },
             	 onError : function(){
+                    console.log("======================================== player error")
 	        	 	$(".videoContaner .into_play_area").html("");
 		            $(".videoContaner .into_play_area").removeAttr("id");
 	        	 }
@@ -516,8 +518,6 @@ window.onload = function(){
 
                 smallImageContainer.append(smallImage);
         }
-        
-    	
 
     	smallImg = $(".footer_contianer .footer_container_img");
     }
@@ -727,6 +727,7 @@ window.onload = function(){
 
     $(".img_screen").on("mouseout",".img_container",function(){
 		clearInt = setInterval(function(){
+            console.log("mouseout event======================== init anmation:");
 			isAutoPlay = true;
     		isAutoPlaySmall = true;
 			initAnmation();
@@ -747,6 +748,7 @@ window.onload = function(){
 
     $(".footer_contianer").on("mouseout",".footer_container_img",function(){
     	clearInt = setInterval(function(){
+            console.log("=============== event init anmation");
     		isAutoPlay = true;
     		isAutoPlaySmall = true;
 			initAnmation();
@@ -1025,6 +1027,7 @@ window.onload = function(){
                 findDom(arr[k]);
             }
             clearInt = setInterval(function(){
+                console.log("============================== delete event anmation");
                 isAutoPlay = true;
                 isAutoPlaySmall = true;
                 initAnmation();
@@ -1041,6 +1044,7 @@ window.onload = function(){
                 }
             },900*deleteDomIndex);
             clearInt = setInterval(function(){
+                console.log("===================== add event init anmation");
                 isAutoPlay = true;
                 isAutoPlaySmall = true;
                 initAnmation();
@@ -1101,6 +1105,7 @@ window.onload = function(){
 
 	clearInt = setInterval(function(){
 		initAnmation();
+        console.log("=============== setInterval init anmation");
 	}, 1000*30);
 
 	// setTimeout(function(data){
