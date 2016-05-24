@@ -5,6 +5,12 @@
      totalLen = 0,
      currentIndex = 0,
      deleteDomIndex = 0,
+     removeBigNum = 14,
+     removeSmallNum = 0,
+     bigAnimationIndex = 0,
+     smallAnimationIndex = 0,
+     isBigAnmationing = true,
+     isSmallAnmationing = true,
      option = {
      	right : 14,
      	bottom : [{
@@ -143,9 +149,7 @@ $(function(){
         var k = +cid % 10;
         var ip2 = cid==ip?'rtmp'+k.toString()+'.public.topvdn.cn':ip;
         var player = rtmpPlayer.player;
-        console.log("=============================== stop before");
         player.stop();
-        console.log("============================== stop after:")
         player.setup({
             file: 'rtmp://'+ip2+'/live/'+cid,
             rtmp: {
@@ -159,7 +163,6 @@ $(function(){
     	            $(".videoContaner .into_play_area").removeAttr("id");
             	 },
             	 onError : function(){
-                    console.log("======================================== player error")
 	        	 	$(".videoContaner .into_play_area").html("");
 		            $(".videoContaner .into_play_area").removeAttr("id");
 	        	 }
@@ -223,6 +226,7 @@ $(function(){
     });
 
     function initImage(data){
+
     	var imgUrl = [],
     	    index = 0,
     	    classIndex = 0,
@@ -496,9 +500,7 @@ window.onload = function(){
         if(currentIndex>showData.length-1){
         	currentIndex = 0;
         }
-
-         
-         var lastImage = $(".footer_contianer .footer_container_img:last"),
+        var lastImage = $(".footer_contianer .footer_container_img:last"),
             len = $(".footer_contianer .footer_container_img").length,
     	    dataPosition = parseInt(lastImage.attr("data-position")),
     	    temp = showData[currentIndex]["cid"],
@@ -580,16 +582,19 @@ window.onload = function(){
     }
 
 	function initAnmation(){
-        clearInterval(clearUpdate);
+
 		bigImg = $(".img_screen .img_container");
 		smallImg = $(".footer_contianer .footer_container_img");
-        isAnmationing = true,
-        isSmallAnmationing = true,
-        smallAnimationCount = 0,
-
+        isAnmationing = true;
+        isSmallAnmationing = true;
+        smallAnimationCount = 0;
+        bigAnimationIndex = 0;
+        smallAnimationIndex = 0;
+        isBigAnmationing = true;
         isPlay();
-
+    
         if(isAutoPlay){
+            removeBigNum = bigImg.length;
         	initBigImage();
         }
         initSmallImage();
@@ -597,6 +602,7 @@ window.onload = function(){
 		smallImg = $(".footer_contianer .footer_container_img");
 
 		if(isAutoPlaySmall){
+            removeSmallNum = smallImg.length;
 			for(var i=0,len=smallImg.length;i<len;i++){
 	    		var dom = smallImg[i],
 	    		    temp = parseInt($(dom).attr("data-position"));
@@ -606,10 +612,15 @@ window.onload = function(){
 
         smallImg.on("webkitTransitionEnd",function(){
 	       	var dataPosition = $(this).attr("data-position");
+            smallAnimationIndex ++;
 	       	if(dataPosition === "0"){
 	       		$(this).removeClass("scale_min");
 	       	}
 
+            if(removeSmallNum === smallAnimationIndex ){
+                isSmallAnmationing = false;
+            }
+            
 	       	$(this).removeClass("small_turn_left");
 	       	$(this).removeClass("small_turn_up");
 	       	$(this).removeClass("small_turn_right");
@@ -619,7 +630,7 @@ window.onload = function(){
         
 	    bigImg.on("webkitTransitionEnd",function(){
             var dataPosition = $(this).attr("data-position");
- 
+            bigAnimationIndex ++ ;
 	       	if(dataPosition === "-6"){
 	       		if(isAutoPlay){
 	    		 	var willPlayDom = $(this).find("img"),
@@ -632,6 +643,10 @@ window.onload = function(){
 					bigImg.parent().find("[data-position='-6']").remove();
 	        	}
 	       	}
+
+            if(bigAnimationIndex === removeBigNum){
+                isBigAnmationing = false;
+            }
 
 	    	$(this).removeClass("turn_left");
 	    	$(this).removeClass("turn_down");
@@ -648,18 +663,14 @@ window.onload = function(){
 	    	$(this).parent().addClass("error_image");
 	    	$(this).remove();
 	    });
-
-	    clearUpdate = setInterval(function(){
-	    	common.initData(function(data){
-	    	    deleteDomIndex = 0;
-	    		updateData(data);
-	    	});
-	    },10000);
 	}
 
 	$(".img_screen").on("click",".img_container",function(){
+        if(isSmallAnmationing && isBigAnmationing){
+            return false;
+        }
+
 		clearInterval(clearInt);
-        clearInterval(clearUpdate);
 		videAnmation.html("");
 		videAnmation.removeAttr("id");
 
@@ -673,6 +684,7 @@ window.onload = function(){
     	    src = dom.attr("src");
 
         isPlayVideo = true;
+        removeBigNum = 0;
         isAutoPlay = false;
         isAutoPlaySmall = true;
         videoContaner.css("z-index","100");
@@ -688,6 +700,8 @@ window.onload = function(){
 		                topValue = 0,
 		                leftValue = 0,
 	    			    dir = floatDir[i]["dir"];
+
+                    removeBigNum ++;
 
 	    			if(dir === "up"){
 						topValue = top-118;
@@ -722,49 +736,34 @@ window.onload = function(){
 
     $(".img_screen").on("mouseover",".img_container",function(){
 		clearInterval(clearInt);
-		clearInterval(clearUpdate);
     });
 
     $(".img_screen").on("mouseout",".img_container",function(){
 		clearInt = setInterval(function(){
-            console.log("mouseout event======================== init anmation:");
 			isAutoPlay = true;
     		isAutoPlaySmall = true;
 			initAnmation();
 		}, 30000);
-		clearUpdate = setInterval(function(){
-	    	common.initData(function(data){
-	    	    deleteDomIndex = 0;
-	    		updateData(data);
-	    	});
-	    },10000);
     });
 
     $(".footer_contianer").on("mouseover",".footer_container_img",function(){
-    	clearInterval(clearInt);
-    	clearInterval(clearUpdate);
-    	
+    	clearInterval(clearInt);	
     });
 
     $(".footer_contianer").on("mouseout",".footer_container_img",function(){
     	clearInt = setInterval(function(){
-            console.log("=============== event init anmation");
     		isAutoPlay = true;
     		isAutoPlaySmall = true;
 			initAnmation();
 		} , 30000);
-		clearUpdate = setInterval(function(){
-	    	common.initData(function(data){
-	    	    deleteDomIndex = 0;
-	    		updateData(data);
-	    	});
-	    },10000);
     });
 
     $(".footer_contianer").on("click",".footer_container_img",function(){
+        if(isSmallAnmationing && isBigAnmationing){
+            return false;
+        }
 
     	clearInterval(clearInt);
-        clearInterval(clearUpdate);
     	videAnmation.html("");
 		videAnmation.removeAttr("id");
         
@@ -781,7 +780,7 @@ window.onload = function(){
     	isAutoPlay = false;
         isAutoPlaySmall = false;
         videoContaner.css("z-index","100");
-        
+        removeSmallNum = 0;
         insertSmallImage();
         $(this).remove();
 
@@ -796,7 +795,7 @@ window.onload = function(){
 		                offset_left = 0,
 		                offset_top = 0,
 	    			    dir = floatSmall[i]["dir"];
-
+                    removeSmallNum ++;
 		    		if(position > -2){
 		    			offset_left = width+10;
 		    			offset_top = 75;
@@ -856,6 +855,7 @@ window.onload = function(){
     	var position = parseInt(currentDom.attr("data-position"))+1;
     	currentDom.remove();
         isAutoPlay = false;
+        removeBigNum = 0;
         isAutoPlaySmall = true;
 
     	for(position;position<8;position++){
@@ -869,6 +869,7 @@ window.onload = function(){
 		                leftValue = 0,
 	    			    dir = floatDir[i]["dir"];
 
+                    removeBigNum ++;
 	    			if(dir === "up"){
 						topValue = top-118;
 						currentDom.css("top",topValue+"px");
@@ -899,6 +900,7 @@ window.onload = function(){
         insertSmallImage();
         currentDom.remove();
         isAutoPlay = false;
+        removeSmallNum = 0;
         isAutoPlaySmall = false;
 
         for(position;position>minPosition;position--){
@@ -912,6 +914,8 @@ window.onload = function(){
 		                offset_left = 0,
 		                offset_top = 0,
 	    			    dir = floatSmall[i]["dir"];
+
+                    removeSmallNum ++;
 
 		    		if(position > -2){
 		    			offset_left = width+10;
@@ -1022,33 +1026,23 @@ window.onload = function(){
 
     function travelDeleteDome(arr){
         if(arr.length){
-            clearInterval(clearInt);
-            for(var k=0,len = arr.length;k<len;k++){
-                findDom(arr[k]);
+            if(!isBigAnmationing && !isSmallAnmationing){
+                for(var k=0,len = arr.length;k<len;k++){
+                    findDom(arr[k]);
+                }
             }
-            clearInt = setInterval(function(){
-                console.log("============================== delete event anmation");
-                isAutoPlay = true;
-                isAutoPlaySmall = true;
-                initAnmation();
-            }, 1000*30);
         }
     }
 
     function travaleAddDome(addArray){
         if(addArray.length){
-            clearInterval(clearInt);
             setTimeout(function(){
-                for(var k=0,len=addArray.length;k<len;k++){
-                    insertUpdateData(addArray[k]);
+                if(!isBigAnmationing && !isSmallAnmationing){
+                    for(var k=0,len=addArray.length;k<len;k++){
+                        insertUpdateData(addArray[k]);
+                    }
                 }
             },900*deleteDomIndex);
-            clearInt = setInterval(function(){
-                console.log("===================== add event init anmation");
-                isAutoPlay = true;
-                isAutoPlaySmall = true;
-                initAnmation();
-            }, 1000*30);
         }
     }
 
@@ -1075,7 +1069,6 @@ window.onload = function(){
     				currentIndex --;
     			}
                 deleteArray.push(cid);
-    			//findDom(cid);
     		}
     	}
     
@@ -1098,27 +1091,9 @@ window.onload = function(){
         travaleAddDome(addArray);
     }
 
-    // setTimeout(function(){
-    // 	initAnmation();
-    // },15000)
-    // initAnmation();
-
 	clearInt = setInterval(function(){
 		initAnmation();
-        console.log("=============== setInterval init anmation");
 	}, 1000*30);
-
-	// setTimeout(function(data){
-	// 	var tempData = showData.slice(50) 
-	//     var temp = [],
-	//         len = showData.length-1;
-	// 	for(var i=0;i<50;i++){
-	// 		temp.push(showData[len-i]);
-	// 	}
-	// 	common.initData(function(data){
-	// 	    updateData(data);
- //    	});
-	// },10000);
     
     clearUpdate = setInterval(function(){
     	common.initData(function(data){
