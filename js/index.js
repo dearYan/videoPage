@@ -5,7 +5,7 @@
      totalLen = 0,
      currentIndex = 0,
      deleteDomIndex = 0,
-     removeBigNum = 14,
+     removeBigNum = 0,
      removeSmallNum = 0,
      bigAnimationIndex = 0,
      smallAnimationIndex = 0,
@@ -283,7 +283,6 @@ $(function(){
         		}
         		initPosition = initPosition - smallArray[1]["num"];
         	}else {
-        	   
         		if(i%2 === 0){
         			classIndex = classIndex + smallArray[i]["num"];
         			for(var k=0;k<smallArray[i]["num"];k++){
@@ -355,9 +354,7 @@ window.onload = function(){
 	    isPlayVideo = true,
 	    isLockBtn = $(".videoContaner .video_locking_btn"),
 	    isAnmationing = false,
-	    isSmallAnmationing = false,
 	    isAutoPlay = true,
-	    smallAnimationCount = 0,
 	    isAutoPlaySmall = true,
 	    bigIndex = 0,
 	    smallIndex = 0;
@@ -582,19 +579,19 @@ window.onload = function(){
     }
 
 	function initAnmation(){
+       console.log("============================= auto initAnmation function",new Date());
 
 		bigImg = $(".img_screen .img_container");
 		smallImg = $(".footer_contianer .footer_container_img");
         isAnmationing = true;
         isSmallAnmationing = true;
-        smallAnimationCount = 0;
         bigAnimationIndex = 0;
         smallAnimationIndex = 0;
         isBigAnmationing = true;
         isPlay();
     
         if(isAutoPlay){
-            removeBigNum = bigImg.length;
+            removeBigNum = 14;
         	initBigImage();
         }
         initSmallImage();
@@ -619,6 +616,7 @@ window.onload = function(){
 
             if(removeSmallNum === smallAnimationIndex ){
                 isSmallAnmationing = false;
+                isAutoPlaySmall = true;
             }
             
 	       	$(this).removeClass("small_turn_left");
@@ -646,6 +644,7 @@ window.onload = function(){
 
             if(bigAnimationIndex === removeBigNum){
                 isBigAnmationing = false;
+                isAutoPlay = true;
             }
 
 	    	$(this).removeClass("turn_left");
@@ -1028,6 +1027,7 @@ window.onload = function(){
         if(arr.length){
             if(!isBigAnmationing && !isSmallAnmationing){
                 for(var k=0,len = arr.length;k<len;k++){
+                    currentIndex -- ;
                     findDom(arr[k]);
                 }
             }
@@ -1039,6 +1039,7 @@ window.onload = function(){
             setTimeout(function(){
                 if(!isBigAnmationing && !isSmallAnmationing){
                     for(var k=0,len=addArray.length;k<len;k++){
+                        currentIndex ++ ;
                         insertUpdateData(addArray[k]);
                     }
                 }
@@ -1065,9 +1066,6 @@ window.onload = function(){
     			}
     		}
     		if(isDelete){
-    			if(currentIndex>i){
-    				currentIndex --;
-    			}
                 deleteArray.push(cid);
     		}
     	}
