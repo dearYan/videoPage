@@ -9,8 +9,8 @@
      removeSmallNum = 0,
      bigAnimationIndex = 0,
      smallAnimationIndex = 0,
-     isBigAnmationing = true,
-     isSmallAnmationing = true,
+     isBigAnmationing = false,
+     isSmallAnmationing = false,
      option = {
      	right : 14,
      	bottom : [{
@@ -184,14 +184,9 @@ $(function(){
 
     common.initData(function(data){
     	var tempCid = data[data.length-1]["cid"],
-    	    tempName = data[data.length-1]["app_name"]+"-"+data[data.length-1]["location"];
+    	    tempName = data[data.length-1]["app_name"]+"-"+data[data.length-1]["location"]+'-'+tempCid;
 
 	     showData = data; 
-     //    var tempArr = [];
-	    // for(var i=0;i<65;i++){
-	    // 	tempArr.push(data[i]);
-	    // }
-	    // showData = tempArr;
 
 	    $(".video_desc_container .video_current_name").html(tempName);
 	    rtmpPlayer.playCamera(tempCid,tempCid);
@@ -579,8 +574,6 @@ window.onload = function(){
     }
 
 	function initAnmation(){
-       console.log("============================= auto initAnmation function",new Date());
-
 		bigImg = $(".img_screen .img_container");
 		smallImg = $(".footer_contianer .footer_container_img");
         isAnmationing = true;
@@ -618,6 +611,11 @@ window.onload = function(){
                 isSmallAnmationing = false;
                 isAutoPlaySmall = true;
             }
+
+            if(bigAnimationIndex === removeBigNum){
+                isBigAnmationing = false;
+                isAutoPlay = true;
+            }
             
 	       	$(this).removeClass("small_turn_left");
 	       	$(this).removeClass("small_turn_up");
@@ -634,18 +632,13 @@ window.onload = function(){
 	    		 	var willPlayDom = $(this).find("img"),
 	        	    willPlayImageUrl = willPlayDom.attr("src"),
 	        	    willPlayImageLocation = willPlayDom.attr("data-location"),
-	        	    willPlayName = willPlayDom.attr("data-name")+"-"+willPlayImageLocation,
-				    willPlayIp = willPlayDom.attr("data-url");
+				    willPlayIp = willPlayDom.attr("data-url"),
+                    willPlayName = willPlayDom.attr("data-name")+"-"+ willPlayImageLocation +"-"+ willPlayIp;
 
 					intoFlashPlay(willPlayImageUrl,willPlayIp,willPlayName);
 					bigImg.parent().find("[data-position='-6']").remove();
 	        	}
 	       	}
-
-            if(bigAnimationIndex === removeBigNum){
-                isBigAnmationing = false;
-                isAutoPlay = true;
-            }
 
 	    	$(this).removeClass("turn_left");
 	    	$(this).removeClass("turn_down");
@@ -678,8 +671,8 @@ window.onload = function(){
     	    position = parseInt($(this).attr("data-position"))+1,
     	    num = 7 - position,
     	    location = dom.attr("data-location"),
-    	    dataName = dom.attr("data-name")+'-'+location,
     	    ip = dom.attr("data-url"),
+            dataName = dom.attr("data-name")+'-'+location+ '-'+ip,
     	    src = dom.attr("src");
 
         isPlayVideo = true;
@@ -770,8 +763,8 @@ window.onload = function(){
     	    minPosition = parseInt($(".footer_contianer .footer_container_img:last").attr("data-position"))-2,
     	    opacity = dom.css("opacity"),
     	    location = dom.attr("data-location"),
-    	    dataName = dom.attr("data-name")+'-'+location,
     	    ip = dom.attr("data-url"),
+            dataName = dom.attr("data-name")+'-'+location+'-'+ip,
     	    position = parseInt($(this).attr("data-position"))-1,
     	    src = dom.attr("src");
         
@@ -1005,7 +998,7 @@ window.onload = function(){
     	    lastSmallDom = $(".footer_contianer .footer_container_img:last"),
     	    last_position = parseInt(lastSmallDom.attr("data-position"))-1;
     	if(len<67){
-
+            currentIndex ++ ;
     		if(len>28 && len< 48){
 	    		classIndex = 49 - (len - 29)-1;
 	    	}else{
@@ -1027,19 +1020,17 @@ window.onload = function(){
         if(arr.length){
             if(!isBigAnmationing && !isSmallAnmationing){
                 for(var k=0,len = arr.length;k<len;k++){
-                    currentIndex -- ;
                     findDom(arr[k]);
                 }
             }
         }
     }
 
-    function travaleAddDome(addArray){
+    function travaleAddDome(addArray,deleteArray){
         if(addArray.length){
             setTimeout(function(){
                 if(!isBigAnmationing && !isSmallAnmationing){
                     for(var k=0,len=addArray.length;k<len;k++){
-                        currentIndex ++ ;
                         insertUpdateData(addArray[k]);
                     }
                 }
@@ -1066,7 +1057,12 @@ window.onload = function(){
     			}
     		}
     		if(isDelete){
-                deleteArray.push(cid);
+                if(i<smallImg.length+14+1 || i<currentIndex+1){
+                    if(currentIndex>0){
+                        currentIndex --;
+                    }
+                    deleteArray.push(cid);
+                }
     		}
     	}
     
@@ -1086,7 +1082,7 @@ window.onload = function(){
 
     	showData = tempData;
         travelDeleteDome(deleteArray);
-        travaleAddDome(addArray);
+        travaleAddDome(addArray,deleteArray);
     }
 
 	clearInt = setInterval(function(){
